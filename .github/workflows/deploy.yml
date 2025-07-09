@@ -1,20 +1,27 @@
-name: Update Blog List and Trigger Pages Build
+name: Build and Deploy Blog
 
 on:
   push:
+    branches: [main]
     paths:
       - 'p/*.md'
       - 'update_md_list.py'
-    branches: [main]
+      - '.github/workflows/deploy.yml'
+
+permissions:
+  contents: write    # ✅ 允许对代码内容进行 push 等写操作
+  pages: write       # ✅ 允许操作 Pages（可选，如果你使用 Pages API）
+  id-token: write    # ✅ 一般为了 Pages 或 OIDC 认证使用，推荐保留
 
 jobs:
-  update:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
@@ -27,5 +34,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add list.json
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update list.json"
+          git diff --cached --quiet || git commit -m "Update list.json"
           git push
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          force_orphan: true

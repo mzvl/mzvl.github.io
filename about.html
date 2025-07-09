@@ -1,0 +1,222 @@
+<!-- about.html 左右分栏风格 -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关于我</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: sans-serif; line-height: 1.6; color: #333; }
+    nav { background: #f5f5f5; padding: 1rem; text-align: center; }
+    nav a { margin: 0 1rem; text-decoration: none; color: #0366d6; }
+    .container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(to bottom, #2c3e50, #34495e);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+    }
+    .sidebar img {
+      display: block;
+      width: 260px;
+      height: 200px;
+      object-fit: cover;
+    }
+    .info {
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .skills {
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      margin-top: 3rem;
+    }
+    .interests {
+      padding: 1rem 1.5rem 2rem;
+      margin-top: 1.5rem;
+    }
+    .info ul, .skills ul, .interests ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .info li {
+      display: flex;
+      align-items: center;
+      padding: 0.4rem 0;
+    }
+    .skills li {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .skills .label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+    .icon {
+      width: 1.5rem;
+      text-align: center;
+      font-size: 1.1rem;
+      margin-right: 0.5rem;
+    }
+    .skills .bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .skills .bar span {
+      display: block;
+      height: 100%;
+      background: #1abc9c;
+    }
+    .interests ul {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem 0.5rem;
+      justify-items: center;
+      color: rgba(255,255,255,0.6);
+    }
+    .interests li {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.6rem;
+      line-height: 1;
+    }
+    .interests .icon {
+      font-size: 2.4rem;
+      margin-bottom: 0.1rem;
+    }
+    .content {
+      flex: 1;
+      padding: 2rem;
+      background: #fdfdfd;
+    }
+    .section { margin-bottom: 2.5rem; }
+    h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+    h2 { font-size: 1.2rem; border-left: 4px solid #2980b9; padding-left: 0.5rem; color: #2980b9; margin-top: 2rem; }
+    ul li { margin-bottom: 0.5rem; }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        order: 2;
+      }
+      .sidebar img {
+        width: 100%;
+      }
+      .content {
+        order: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">🏠 主页</a>
+    <a href="/#blog">📘 博客</a>
+    <a href="/other.html">📚 其他</a>
+    <a href="/about.html">👤 关于</a>
+  </nav>
+  <div class="container">
+    <aside class="sidebar">
+      <div>
+        <img src="https://via.placeholder.com/260x200.png?text=Avatar" alt="头像">
+        <div class="info">
+          <ul>
+            <li><span class="icon">🎂</span><span>29 岁</span></li>
+            <li><span class="icon">📍</span><span>深圳</span></li>
+            <li><span class="icon">📞</span><span>15771280878</span></li>
+            <li><span class="icon">🎓</span><span>大专</span></li>
+          </ul>
+        </div>
+        <div class="skills">
+          <ul>
+            <li>
+              <div class="label"><span class="icon">🔧</span><span>贴片机</span></div>
+              <div class="bar"><span style="width:90%"></span></div>
+            </li>
+            <li>
+              <div class="label"><span class="icon">📝</span><span>Word / Excel</span></div>
+              <div class="bar"><span style="width:80%"></span></div>
+            </li>
+            <li>
+              <div class="label"><span class="icon">📊</span><span>设备管理</span></div>
+              <div class="bar"><span style="width:75%"></span></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="interests">
+        <ul>
+          <li><span class="icon">🏀</span><span>篮球</span></li>
+          <li><span class="icon">🎧</span><span>音乐</span></li>
+          <li><span class="icon">📖</span><span>阅读</span></li>
+          <li><span class="icon">🖥️</span><span>电子</span></li>
+          <li><span class="icon">🎬</span><span>电影</span></li>
+          <li><span class="icon">⛰️</span><span>户外</span></li>
+        </ul>
+      </div>
+    </aside>
+    <main class="content">
+      <section class="section">
+        <h1>马春雨</h1>
+        <h2>求职意向：SMT设备技术岗 / 制程工程师</h2>
+        <p>拥有9年SMT设备维护经验，深入掌握NPM贴片机的调试、编程和维护，擅长优化生产流程和提升生产效率，具备丰富的故障诊断与设备维护经验，能够熟练实施技术改造与工艺改善，提升良率，确保生产效率与稳定性。</p>
+      </section>
+
+      <section class="section">
+        <h2>核心技能</h2>
+        <ul>
+          <li>设备操作：熟练NPM贴片机、印刷机、回流焊等SMT设备，掌握设备参数设定与调试</li>
+          <li>问题分析：擅长运用鱼骨图、5Why等分析法定位问题</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>工作经验</h2>
+        <p><strong>2017.01–2025.06 富士康科技集团 / SMT设备技术员</strong></p>
+        <ul>
+          <li>负责NPM贴片机日常操作、调试维护，确保设备高效稳定运行</li>
+          <li>主导NPM程序编程与产线优化，提升贴片速度与精度</li>
+          <li>协助生产线异常处理与设备故障修复，优化设备使用率</li>
+          <li>培训操作员工，推广标准化操作流程</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>突出贡献</h2>
+        <ul>
+          <li>主导完成50+ SMT产线贴片设备优化与调试，提升效率超20%</li>
+          <li>处理超300例贴片机运行异常，平均修复时间缩短35%</li>
+          <li>参与引入新机型（NPI）并完成整机验证，提高首件良率</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>自我评价</h2>
+        <ul>
+          <li>细致认真、责任感强，具备良好的团队协作与沟通能力</li>
+          <li>善于分析问题并持续学习，不断提升专业技能</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

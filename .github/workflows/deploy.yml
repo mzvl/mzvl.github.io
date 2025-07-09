@@ -1,17 +1,20 @@
-name: Deploy Blog
+name: Update Blog List and Deploy
 
 on:
   push:
+    paths:
+      - 'p/*.md'
+      - 'update_md_list.py'
     branches: [main]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
@@ -19,7 +22,7 @@ jobs:
       - name: Run update_md_list.py
         run: python update_md_list.py
 
-      - name: Commit list.json
+      - name: Commit updated list.json
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -27,8 +30,10 @@ jobs:
           git diff --cached --quiet || git commit -m "Update list.json"
           git push
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy with GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .  # 根目录
+          publish_dir: ./
+          publish_branch: gh-pages
+          force_orphan: true

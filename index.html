@@ -1,0 +1,40 @@
+<!-- 根目录 index.html -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客主页</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
+  <style>
+    body { font-family: sans-serif; padding: 1rem; margin: 0; }
+    nav { margin-bottom: 2rem; }
+    nav a { margin-right: 1.5rem; text-decoration: none; color: #0366d6; display: inline-flex; align-items: center; gap: 0.3rem; font-size: 1rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: .5rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">🏠 主页</a>
+    <a href="/#blog">📘 博客</a>
+    <a href="/other.html">📚 其他</a>
+    <a href="/about.html">👤 关于</a>
+  </nav>
+  <h1>博客文章</h1>
+  <ul id="post-list"></ul>
+
+  <script>
+    fetch('./list.json')
+      .then(res => res.json())
+      .then(data => {
+        const ul = document.getElementById('post-list');
+        data.slice(0, 3).forEach(([name]) => {
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="/p/index.html?p=${name}">${name.replace(/\.md$/, '')}</a>`;
+          ul.appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>

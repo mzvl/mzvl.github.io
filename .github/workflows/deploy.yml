@@ -1,0 +1,50 @@
+name: Deploy Blog
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate list.json from /p
+        run: |
+          import os, json
+          from datetime import datetime
+
+          md_dir = 'p'
+          result = []
+          for file in os.listdir(md_dir):
+              if file.endswith('.md'):
+                  path = os.path.join(md_dir, file)
+                  mtime = os.path.getmtime(path)
+                  date_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+                  result.append([file, date_str])
+          result.sort(key=lambda x: x[1], reverse=True)
+          with open('list.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          print('list.json updated.')
+
+      - name: Commit list.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add list.json
+          git commit -m "Update list.json" || echo "No changes to commit"
+          git push
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .  # 根目录

@@ -1,40 +1,54 @@
-<!-- 根目录 index.html -->
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>博客主页</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markdown Blog</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css" />
   <style>
-    body { font-family: sans-serif; padding: 1rem; margin: 0; }
-    nav { margin-bottom: 2rem; }
-    nav a { margin-right: 1.5rem; text-decoration: none; color: #0366d6; display: inline-flex; align-items: center; gap: 0.3rem; font-size: 1rem; }
-    ul { list-style: none; padding: 0; }
-    li { margin-bottom: .5rem; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+    }
+    #file-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    #file-list li {
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="/">🏠 主页</a>
-    <a href="/#blog">📘 博客</a>
-    <a href="/other.html">📚 其他</a>
-    <a href="/about.html">👤 关于</a>
-  </nav>
-  <h1>博客文章</h1>
-  <ul id="post-list"></ul>
+  <div class="container">
+    <h1>Markdown Blog</h1>
+    <ul id="file-list">
+      <!-- List will be populated by JS -->
+    </ul>
+  </div>
 
   <script>
-    fetch('./list.json')
+    fetch('list.json')
       .then(res => res.json())
-      .then(data => {
-        const ul = document.getElementById('post-list');
-        data.slice(0, 3).forEach(([name]) => {
+      .then(files => {
+        const listContainer = document.getElementById('file-list');
+        files.forEach(file => {
           const li = document.createElement('li');
-          li.innerHTML = `<a href="/p/index.html?p=${name}">${name.replace(/\.md$/, '')}</a>`;
-          ul.appendChild(li);
+          li.innerHTML = `<a href="p/index.html?p=${file[0]}">${file[0]}</a> - ${file[1]}`;
+          listContainer.appendChild(li);
         });
-      });
+      })
+      .catch(err => console.error('Error loading file list:', err));
   </script>
 </body>
 </html>

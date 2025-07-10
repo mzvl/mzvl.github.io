@@ -1,46 +1,58 @@
-name: Build and Deploy Blog
+name: Deploy Blog
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main  # 只在 master 分支发生变化时触发
     paths:
-      - 'p/*.md'
-      - 'update_md_list.py'
-      - '.github/workflows/deploy.yml'
-
+      - 'p/*'
+      - 'lib/update_list.py'
+      - 'index.html'
+      - 'list.json'  # 监控 list.json 文件变化
 permissions:
-  contents: write    # ✅ 允许对代码内容进行 push 等写操作
-  pages: write       # ✅ 允许操作 Pages（可选，如果你使用 Pages API）
-  id-token: write    # ✅ 一般为了 Pages 或 OIDC 认证使用，推荐保留
-
+  contents: write # 授予对仓库内容的写权限
+  
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      # 2. Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
           python-version: '3.x'
 
-      - name: Generate list.json
-        run: python update_md_list.py
-
-      - name: Commit list.json if changed
+      # 3. Install dependencies (if any)
+      - name: Install dependencies
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add list.json
-          git diff --cached --quiet || git commit -m "Update list.json"
-          git push
+          python -m pip install --upgrade pip
+          pip install markdown
 
+      # 4. Run Python script to update list.json
+      - name: Run update_list.py
+        run: python lib/update_list.py
+
+      # 5. Configure Git for actions
+      - name: Configure git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      # 6. Commit and push the changes (if any)
+      - name: Commit and push changes
+        run: |
+          git add list.json  # 添加 list.json 到暂存区
+          git commit -m "Update list.json" || echo "No changes to commit"  # 如果有更改则提交
+          git push origin master  # 将更改推送到 master 分支
+
+      # 7. Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          publish_branch: gh-pages
-          force_orphan: true
+          branch: gh-pages  # 部署到 gh-pages 分支
+          folder: .  # 部署根目录

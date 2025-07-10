@@ -1,0 +1,108 @@
+<!-- p/index.html -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阅读文章</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    nav { position: fixed; top: 0; left: 0; width: 100%; background: #f5f5f5; padding: 0.5rem 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1000; }
+    nav a { margin-right: 1.5rem; text-decoration: none; color: #0366d6; }
+    #layout { display: flex; padding-top: 3rem; }
+    #toc { width: 15rem; padding: 1rem; overflow-y: auto; background: #fafafa; border-right: 1px solid #ddd; font-size: 0.9rem; }
+    #archive { width: 15rem; padding: 1rem; overflow-y: auto; background: #fafafa; border-left: 1px solid #ddd; font-size: 0.9rem; }
+    main { flex: 1; padding: 2rem; }
+    .markdown-body { max-width: 100%; }
+    #toc-toggle { display: none; position: fixed; top: 0.6rem; left: 0.5rem; z-index: 1001; background: #eee; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.9rem; }
+
+    @media (max-width: 768px) {
+      #toc { display: none; position: fixed; top: 3rem; left: 0; height: calc(100% - 3rem); z-index: 999; background: #fff; border-right: 1px solid #ccc; }
+      #toc.show { display: block; }
+      #toc-toggle { display: block; }
+      #layout { flex-direction: column; }
+      #archive { border-left: none; border-top: 1px solid #ddd; }
+      main { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">🏠 主页</a>
+    <a href="/#blog">📘 博客</a>
+    <a href="/other.html">📚 其他</a>
+    <a href="/about.html">👤 关于</a>
+  </nav>
+
+  <button id="toc-toggle">📑 目录</button>
+
+  <div id="layout">
+    <div id="toc"></div>
+    <main>
+      <article id="content" class="markdown-body"></article>
+      <div id="archive"></div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const getParam = key => new URLSearchParams(location.search).get(key) || 'readme.md';
+    const mdFile = getParam('p');
+
+    fetch(`./p/${mdFile}`)
+      .then(res => res.ok ? res.text() : '# 未找到文档')
+      .then(text => {
+        // 渲染正文
+        document.getElementById('content').innerHTML = marked.parse(text);
+
+        // 生成 TOC
+        const tocEl = document.getElementById('toc');
+        const headers = [...document.querySelectorAll('.markdown-body h1, h2, h3')];
+        const ul = document.createElement('ul');
+        headers.forEach(h => {
+          const id = h.innerText.trim().toLowerCase().replace(/\s+/g, '-');
+          h.id = id;
+          const li = document.createElement('li');
+          li.style.marginLeft = (parseInt(h.tagName[1]) - 1) * 1 + 'rem';
+          li.innerHTML = `<a href="#${id}">${h.innerText}</a>`;
+          ul.appendChild(li);
+        });
+        tocEl.innerHTML = '<strong>目录</strong>';
+        tocEl.appendChild(ul);
+      });
+
+    fetch('../list.json')
+      .then(res => res.json())
+      .then(data => {
+        const groups = {};
+        data.forEach(([name, date]) => {
+          const [y, m] = date.split('-');
+          const key = `${y}年${m}月`;
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(name);
+        });
+        const archive = document.getElementById('archive');
+        archive.innerHTML = '<strong>归档</strong>';
+        Object.keys(groups).reverse().forEach(key => {
+          const section = document.createElement('section');
+          const title = document.createElement('div');
+          title.innerText = key;
+          const list = document.createElement('ul');
+          groups[key].forEach(name => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="/p/index.html?p=${name}">${name.replace(/\.md$/, '')}</a>`;
+            list.appendChild(li);
+          });
+          section.appendChild(title);
+          section.appendChild(list);
+          archive.appendChild(section);
+        });
+      });
+
+    document.getElementById('toc-toggle').addEventListener('click', () => {
+      document.getElementById('toc').classList.toggle('show');
+    });
+  </script>
+</body>
+</html>

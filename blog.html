@@ -1,108 +1,189 @@
-<!-- p/index.html -->
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>阅读文章</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
-  <style>
-    body { margin: 0; font-family: sans-serif; }
-    nav { position: fixed; top: 0; left: 0; width: 100%; background: #f5f5f5; padding: 0.5rem 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1000; }
-    nav a { margin-right: 1.5rem; text-decoration: none; color: #0366d6; }
-    #layout { display: flex; padding-top: 3rem; }
-    #toc { width: 15rem; padding: 1rem; overflow-y: auto; background: #fafafa; border-right: 1px solid #ddd; font-size: 0.9rem; }
-    #archive { width: 15rem; padding: 1rem; overflow-y: auto; background: #fafafa; border-left: 1px solid #ddd; font-size: 0.9rem; }
-    main { flex: 1; padding: 2rem; }
-    .markdown-body { max-width: 100%; }
-    #toc-toggle { display: none; position: fixed; top: 0.6rem; left: 0.5rem; z-index: 1001; background: #eee; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.9rem; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>博客文章</title>
 
-    @media (max-width: 768px) {
-      #toc { display: none; position: fixed; top: 3rem; left: 0; height: calc(100% - 3rem); z-index: 999; background: #fff; border-right: 1px solid #ccc; }
-      #toc.show { display: block; }
-      #toc-toggle { display: block; }
-      #layout { flex-direction: column; }
-      #archive { border-left: none; border-top: 1px solid #ddd; }
-      main { padding: 1rem; }
+  <!-- 公共样式 -->
+  <link rel="stylesheet" href="lib/my.css" />
+
+  <!-- 插件样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"/>
+
+  <!-- 页面自定义样式 -->
+  <style>
+    .layout {
+      display: flex;
+      margin-top: var(--nav-height);
+      height: calc(100vh - var(--nav-height));
+      overflow: hidden;
+    }
+
+    aside.left, aside.right {
+      width: 16rem;
+      background: #f8f8f8;
+      overflow-y: auto;
+      padding: 1rem;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    aside.right {
+      border-left: 1px solid #e0e0e0;
+      border-right: none;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .markdown-body {
+      max-width: 100%;
+      word-break: break-word;
+    }
+
+    .toc-toggle {
+      display: none;
+      position: fixed;
+      top: var(--nav-height);
+      left: 0;
+      width: 100%;
+      background: #fff;
+      padding: 0.5rem 1rem;
+      z-index: 900;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* 小桌面端：隐藏目录，仅保留归档 */
+    @media (max-width: 1280px) {
+      aside.left {
+        display: none;
+      }
+
+      .toc-toggle {
+        display: block;
+      }
+    }
+
+    /* 移动端：归档放到底部，布局改为纵向 */
+    @media (max-width: 600px) {
+      .layout {
+        flex-direction: column;
+        overflow: auto;
+      }
+
+      aside.right {
+        position: static;
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .content {
+        padding: 1rem;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- 导航栏 -->
   <nav>
-    <a href="/">🏠 主页</a>
-    <a href="/#blog">📘 博客</a>
-    <a href="/other.html">📚 其他</a>
-    <a href="/about.html">👤 关于</a>
+    <div class="nav-container">
+      <a href="index.html"><span class="icon">🏠</span><span class="label"> 主页</span></a>
+      <a href="blog.html"><span class="icon">📘</span><span class="label"> 博客</span></a>
+      <a href="other.html"><span class="icon">📚</span><span class="label"> 其他</span></a>
+      <a href="about.html"><span class="icon">👤</span><span class="label"> 关于</span></a>
+    </div>
   </nav>
 
-  <button id="toc-toggle">📑 目录</button>
+  <!-- 移动端目录按钮 -->
+  <button class="toc-toggle" onclick="toggleTOC()">显示目录</button>
 
-  <div id="layout">
-    <div id="toc"></div>
-    <main>
-      <article id="content" class="markdown-body"></article>
-      <div id="archive"></div>
-    </main>
+  <!-- 三栏布局 -->
+  <div class="layout">
+    <aside class="left" id="toc">目录加载中...</aside>
+
+    <div class="content">
+      <article class="markdown-body" id="markdown">正在加载...</article>
+    </div>
+
+    <aside class="right" id="archive">
+      <h3>归档</h3>
+      <ul id="archive-list"></ul>
+    </aside>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- 第三方库 -->
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-katex@3.0.1/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-mermaid-plugin@1.5.0/dist/markdown-it-mermaid-plugin.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+  <script>hljs.highlightAll();</script>
+
+  <!-- 主逻辑 -->
   <script>
-    const getParam = key => new URLSearchParams(location.search).get(key) || 'readme.md';
-    const mdFile = getParam('p');
+    const md = window.markdownit({ html: true, highlight: str => hljs.highlightAuto(str).value })
+      .use(window.markdownitKatex)
+      .use(window.markdownitMermaidPlugin);
 
-    fetch(`./p/${mdFile}`)
-      .then(res => res.ok ? res.text() : '# 未找到文档')
-      .then(text => {
-        // 渲染正文
-        document.getElementById('content').innerHTML = marked.parse(text);
+    const query = new URLSearchParams(location.search);
+    const file = query.get('p') || 'readme.md';
 
-        // 生成 TOC
-        const tocEl = document.getElementById('toc');
-        const headers = [...document.querySelectorAll('.markdown-body h1, h2, h3')];
-        const ul = document.createElement('ul');
-        headers.forEach(h => {
-          const id = h.innerText.trim().toLowerCase().replace(/\s+/g, '-');
-          h.id = id;
-          const li = document.createElement('li');
-          li.style.marginLeft = (parseInt(h.tagName[1]) - 1) * 1 + 'rem';
-          li.innerHTML = `<a href="#${id}">${h.innerText}</a>`;
-          ul.appendChild(li);
-        });
-        tocEl.innerHTML = '<strong>目录</strong>';
-        tocEl.appendChild(ul);
+    fetch('p/' + file)
+      .then(res => res.text())
+      .then(txt => {
+        document.getElementById('markdown').innerHTML = md.render(txt);
+        generateTOC();
       });
 
-    fetch('../list.json')
-      .then(res => res.json())
-      .then(data => {
-        const groups = {};
-        data.forEach(([name, date]) => {
-          const [y, m] = date.split('-');
-          const key = `${y}年${m}月`;
-          if (!groups[key]) groups[key] = [];
-          groups[key].push(name);
-        });
-        const archive = document.getElementById('archive');
-        archive.innerHTML = '<strong>归档</strong>';
-        Object.keys(groups).reverse().forEach(key => {
-          const section = document.createElement('section');
-          const title = document.createElement('div');
-          title.innerText = key;
-          const list = document.createElement('ul');
-          groups[key].forEach(name => {
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="/p/index.html?p=${name}">${name.replace(/\.md$/, '')}</a>`;
-            list.appendChild(li);
-          });
-          section.appendChild(title);
-          section.appendChild(list);
-          archive.appendChild(section);
-        });
+    function generateTOC() {
+      const content = document.querySelector('.markdown-body');
+      const toc = document.getElementById('toc');
+      const headings = content.querySelectorAll('h1, h2, h3');
+      toc.innerHTML = '<h3>目录</h3>';
+      const ul = document.createElement('ul');
+      headings.forEach(h => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        const id = h.id || h.textContent.trim().replace(/\s+/g, '-');
+        h.id = id;
+        a.href = '#' + id;
+        a.textContent = h.textContent;
+        li.style.marginLeft = (parseInt(h.tagName[1]) - 1) * 1 + 'rem';
+        li.appendChild(a);
+        ul.appendChild(li);
       });
+      toc.appendChild(ul);
+    }
 
-    document.getElementById('toc-toggle').addEventListener('click', () => {
+    function toggleTOC() {
       document.getElementById('toc').classList.toggle('show');
-    });
+    }
+
+    // 加载归档
+    fetch('list.json')
+      .then(res => res.json())
+      .then(list => {
+        const archive = {};
+        list.forEach(([name, date]) => {
+          const ym = date.slice(0, 7);
+          archive[ym] = archive[ym] || [];
+          archive[ym].push(name);
+        });
+
+        const container = document.getElementById('archive-list');
+        for (const ym in archive) {
+          const li = document.createElement('li');
+          li.innerHTML = `<strong>${ym}</strong><ul>` +
+            archive[ym].map(n => `<li><a href="blog.html?p=${n}">${n}</a></li>`).join('') +
+            '</ul>';
+          container.appendChild(li);
+        }
+      });
   </script>
 </body>
 </html>

@@ -48,7 +48,7 @@ jobs:
         run: |
           git add list.json  # 添加 list.json 到暂存区
           git commit -m "Update list.json" || echo "No changes to commit"  # 如果有更改则提交
-          git push origin master  # 将更改推送到 master 分支
+          git push origin main  # 将更改推送到 master 分支
 
       # 7. Deploy to GitHub Pages
       - name: Deploy to GitHub Pages

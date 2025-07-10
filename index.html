@@ -1,54 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Markdown Blog</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css" />
-  <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    .container {
-      max-width: 900px;
-      width: 100%;
-    }
-    h1 {
-      text-align: center;
-    }
-    #file-list {
-      list-style-type: none;
-      padding: 0;
-    }
-    #file-list li {
-      margin: 10px 0;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>首页 - 我的博客</title>
+  <link rel="stylesheet" href="lib/my.css" />
+  <style type="text/css">
+    .welcome{margin-top:10rem;}
+    .welcome h1{margin-bottom:2rem}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Markdown Blog</h1>
-    <ul id="file-list">
-      <!-- List will be populated by JS -->
-    </ul>
-  </div>
+  <!-- 固定导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html"><span class="icon">🏠</span><span class="label"> 主页</span></a>
+      <a href="blog.html"><span class="icon">📘</span><span class="label"> 博客</span></a>
+      <a href="other.html"><span class="icon">📚</span><span class="label"> 其他</span></a>
+      <a href="about.html"><span class="icon">👤</span><span class="label"> 关于</span></a>
+    </div>
+  </nav>
 
+  <!-- 主体内容 -->
+  <main>
+    <section class="welcome">
+      <h1>欢迎来到我的博客</h1>
+      <p>这里记录了我思考与探索的点滴。</p>
+    </section>
+
+    <section class="latest">
+      <h2>最新文章</h2>
+      <div id="latest-blogs">加载中...</div>
+    </section>
+  </main>
+
+  <!-- 加载文章列表 -->
   <script>
     fetch('list.json')
       .then(res => res.json())
-      .then(files => {
-        const listContainer = document.getElementById('file-list');
-        files.forEach(file => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a href="p/index.html?p=${file[0]}">${file[0]}</a> - ${file[1]}`;
-          listContainer.appendChild(li);
-        });
-      })
-      .catch(err => console.error('Error loading file list:', err));
+      .then(list => {
+        const latest = list.slice(-3).reverse();
+        const container = document.getElementById('latest-blogs');
+        container.innerHTML = latest.map(
+          ([name]) => `<a href="blog.html?p=${name}">${name}</a>`
+        ).join('');
+      });
   </script>
 </body>
 </html>

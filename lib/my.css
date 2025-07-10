@@ -1,0 +1,52 @@
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 48px;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 1000;
+}
+
+.nav-container {
+  max-width: 960px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 1rem;
+  gap: 2rem;
+}
+
+nav a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #0366d6;
+  font-size: 16px;
+}
+
+nav .icon {
+  font-size: 18px;
+}
+
+nav .label {
+  margin-left: 0.3em;
+}
+
+@media (max-width: 600px) {
+  .nav-container {
+    justify-content: space-around;
+  }
+
+  .label {
+    display: none;
+  }
+
+  nav a {
+    flex-direction: column;
+    font-size: 18px;
+  }
+}

@@ -58,47 +58,54 @@
     </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it-katex/dist/markdown-it-katex.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it-mermaid/dist/markdown-it-mermaid.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor/dist/markdown-it-anchor.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tocbot/dist/tocbot.min.js"></script>
+  <!-- markdown-it 主体 -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor@8.6.7/dist/markdownItAnchor.umd.min.js"></script>
+
+<!-- KaTeX 数学公式 -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it-katex@3.0.1/dist/markdown-it-katex.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+
+<!-- Mermaid 图表 -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it-mermaid@1.0.3/dist/markdown-it-mermaid.min.js"></script>
+
+<!-- Highlight.js 代码高亮 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css" />
+
+<!-- TOC 插件（tocbot） -->
+<script src="https://cdn.jsdelivr.net/npm/tocbot@4.25.0/dist/tocbot.min.js"></script>
+
 
   <script>
-    const md = window.markdownit({ html: true, highlight: str => hljs.highlightAuto(str).value })
-      .use(window.markdownitKatex)
-      .use(window.markdownitMermaid)
-      .use(window.markdownitAnchor);
+    const md = window.markdownit({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: str => hljs.highlightAuto(str).value
+})
+.use(window.markdownItAnchor)
+.use(window.markdownitKatex)
+.use(window.markdownitMermaid);
 
-    const file = new URLSearchParams(location.search).get('p') || 'readme.md';
+const file = new URLSearchParams(location.search).get('p') || 'readme.md';
 
-    fetch('p/' + file)
-      .then(res => res.text())
-      .then(text => {
-        const html = md.render(text);
-        document.getElementById('content').innerHTML = html;
-        tocbot.init({
-          tocSelector: '#toc',
-          contentSelector: '#content',
-          headingSelector: 'h1, h2, h3',
-          collapseDepth: 6
-        });
-      });
+fetch('p/' + file)
+  .then(res => res.text())
+  .then(text => {
+    const html = md.render(text);
+    document.getElementById('content').innerHTML = html;
 
-    const tocBtn = document.getElementById('toggle-toc');
-    const tocPanel = document.getElementById('toc');
-    tocBtn.addEventListener('click', () => {
-      tocPanel.classList.toggle('active');
+    tocbot.init({
+      tocSelector: '#toc',
+      contentSelector: '#content',
+      headingSelector: 'h1, h2, h3',
+      collapseDepth: 6
     });
-
-    document.body.addEventListener('click', e => {
-      if (window.innerWidth <= 768) {
-        if (!tocPanel.contains(e.target) && !tocBtn.contains(e.target)) {
-          tocPanel.classList.remove('active');
-        }
-      }
-    });
+  })
+  .catch(err => {
+    document.getElementById('content').innerText = '加载失败：' + err;
+  });
   </script>
 </body>
 </html>

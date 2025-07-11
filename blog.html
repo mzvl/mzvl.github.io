@@ -67,8 +67,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
 <!-- Mermaid 图表 -->
-<script src="https://cdn.jsdelivr.net/npm/markdown-it-mermaid@1.0.3/dist/markdown-it-mermaid.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
 <!-- Highlight.js 代码高亮 -->
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css" />
@@ -83,10 +82,8 @@
   linkify: true,
   typographer: true,
   highlight: str => hljs.highlightAuto(str).value
-})
-.use(window.markdownItAnchor)
-.use(window.markdownitKatex)
-.use(window.markdownitMermaid);
+}).use(window.markdownItAnchor)
+  .use(window.markdownitKatex);
 
 const file = new URLSearchParams(location.search).get('p') || 'readme.md';
 
@@ -96,16 +93,24 @@ fetch('p/' + file)
     const html = md.render(text);
     document.getElementById('content').innerHTML = html;
 
+    // 初始化 TOC
     tocbot.init({
       tocSelector: '#toc',
       contentSelector: '#content',
       headingSelector: 'h1, h2, h3',
       collapseDepth: 6
     });
+
+    // 初始化 Mermaid（必须在内容渲染后）
+    if (typeof mermaid !== 'undefined') {
+      mermaid.initialize({ startOnLoad: false });
+      mermaid.run();
+    }
   })
   .catch(err => {
     document.getElementById('content').innerText = '加载失败：' + err;
   });
+
   </script>
 </body>
 </html>

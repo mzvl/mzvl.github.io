@@ -63,8 +63,13 @@
 <script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor@8.6.7/dist/markdownItAnchor.umd.min.js"></script>
 
 <!-- KaTeX 数学公式 -->
-<script src="https://cdn.jsdelivr.net/npm/markdown-it-katex@3.0.1/dist/markdown-it-katex.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<!-- texmath -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it-texmath@0.11.6/texmath.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it-texmath@0.11.6/css/texmath.css">
+
 
 <!-- Mermaid 图表 -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
@@ -82,8 +87,10 @@
   linkify: true,
   typographer: true,
   highlight: str => hljs.highlightAuto(str).value
-}).use(window.markdownItAnchor)
-  .use(window.markdownitKatex);
+})
+.use(texmath.use(katex), { delimiters: 'dollars' })  // 支持 $...$ 数学公式
+.use(window.markdownItAnchor);
+
 
 const file = new URLSearchParams(location.search).get('p') || 'readme.md';
 

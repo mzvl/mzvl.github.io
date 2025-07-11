@@ -1,49 +1,62 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>首页 - 我的博客</title>
-  <link rel="stylesheet" href="lib/my.css" />
-  <style type="text/css">
-    .welcome{margin-top:10rem;}
-    .welcome h1{margin-bottom:2rem}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的博客</title>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+    nav { position: fixed; top: 0; left: 0; width: 100%; height: 3rem; background-color: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 1rem; z-index: 1000; }
+    nav a { margin-right: 1.5rem; text-decoration: none; color: #000; display: flex; align-items: center; }
+    nav span { margin-left: 0.3rem; }
+    main { margin-top: 3rem; height: calc(100vh - 3rem); overflow: hidden; padding: 2rem; word-break: break-word; }
+    .welcome { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; }
+    .subtext { color: #555; margin-bottom: 2rem; }
+    .latest { background: #fafafa; padding: 1rem; border: 1px solid #eee; border-radius: 0.5rem; max-width: 600px; }
+    .latest h2 { margin: 0 0 1rem 0; }
+    .article { margin-bottom: 0.8rem; }
+    .article-title { font-size: 1.1rem; font-weight: bold; }
+    .article-date { font-size: 0.85rem; color: #999; }
+    @media (max-width: 600px) { nav span { display: none; } nav a { justify-content: center; flex: 1; } }
   </style>
 </head>
 <body>
-  <!-- 固定导航栏 -->
   <nav>
-    <div class="nav-container">
-      <a href="index.html"><span class="icon">🏠</span><span class="label"> 主页</span></a>
-      <a href="blog.html"><span class="icon">📘</span><span class="label"> 博客</span></a>
-      <a href="other.html"><span class="icon">📚</span><span class="label"> 其他</span></a>
-      <a href="about.html"><span class="icon">👤</span><span class="label"> 关于</span></a>
-    </div>
+    <a href="index.html">🏠<span>主页</span></a>
+    <a href="blog.html">📘<span>博客</span></a>
+    <a href="other.html">📚<span>其他</span></a>
+    <a href="about.html">👤<span>关于</span></a>
   </nav>
 
-  <!-- 主体内容 -->
   <main>
-    <section class="welcome">
-      <h1>欢迎来到我的博客</h1>
-      <p>这里记录了我思考与探索的点滴。</p>
-    </section>
-
-    <section class="latest">
+    <div class="welcome">欢迎来到我的博客</div>
+    <div class="subtext">这里记录了我思考与探索的点滴。</div>
+    <div class="latest">
       <h2>最新文章</h2>
-      <div id="latest-blogs">加载中...</div>
-    </section>
+      <div id="article-list">加载中...</div>
+    </div>
   </main>
 
-  <!-- 加载文章列表 -->
   <script>
     fetch('list.json')
       .then(res => res.json())
-      .then(list => {
-        const latest = list.slice(-3).reverse();
-        const container = document.getElementById('latest-blogs');
-        container.innerHTML = latest.map(
-          ([name]) => `<a href="blog.html?p=${name}">${name}</a>`
-        ).join('');
+      .then(data => {
+        const list = document.getElementById('article-list');
+        list.innerHTML = '';
+        data.slice(0, 3).forEach(item => {
+          const title = item[0].replace(/\.md$/i, '');
+          const date = item[1];
+          const html = `
+            <div class="article">
+              <div class="article-title">${title}</div>
+              <div class="article-date">${date}</div>
+            </div>
+          `;
+          list.innerHTML += html;
+        });
+      })
+      .catch(() => {
+        document.getElementById('article-list').textContent = '加载失败。';
       });
   </script>
 </body>

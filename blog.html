@@ -6,20 +6,6 @@
   <title>Markdown 阅读器</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-      svg: { fontCache: 'global' }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false });
-    window.mermaid = mermaid;
-  </script>
-
   <style>
     * { box-sizing: border-box; }
     body {
@@ -281,11 +267,23 @@
   
   <button id="toc-toggle">☰</button>
   <button id="top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
-
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false });
+    window.mermaid = mermaid;
+  </script>
   <script>
     const params = new URLSearchParams(location.search);
-    const filename = decodeURIComponent(params.get("p") || "test.md");
-
+    const filename = decodeURIComponent(params.get("p") || "readme.md");
+    const filePath="p/"+filename
     async function renderMarkdownFromFile(filePath) {
       const res = await fetch(filePath);
       if (!res.ok) {

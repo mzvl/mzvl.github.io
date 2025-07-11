@@ -3,436 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Markdown 阅读器</title>
+  <title>博客阅读</title>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-      svg: { fontCache: 'global' }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false });
-    window.mermaid = mermaid;
-  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.min.css">
 
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f9f9f9;
-      color: #000;
-      display: flex;
-      flex-wrap: nowrap;
+    html, body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+    nav { position: fixed; top: 0; left: 0; height: 3rem; width: 100%; background: #fff; display: flex; align-items: center; padding: 0 1rem; border-bottom: 1px solid #ddd; z-index: 1000; }
+    nav a { margin-right: 1.5rem; text-decoration: none; color: #000; display: flex; align-items: center; }
+    nav span { margin-left: 0.3rem; }
+    main { display: flex; height: calc(100vh - 3rem); margin-top: 3rem; overflow: hidden; }
+    .sidebar-left, .sidebar-right { padding: 1rem; overflow-y: auto; scrollbar-width: none; }
+    .sidebar-left::-webkit-scrollbar, .sidebar-right::-webkit-scrollbar, main::-webkit-scrollbar { display: none; }
+    .sidebar-left { width: 260px; border-right: 1px solid #eee; }
+    .sidebar-right { width: 260px; border-left: 1px solid #eee; }
+    .content { flex: 1; overflow-y: auto; padding: 2rem; word-break: break-word; }
+    .markdown-body { max-width: 100%; }
+    @media (max-width: 1024px) {
+      .sidebar-right { display: none; }
+      .content { padding-right: 1rem; }
     }
-
-    header#site-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #fff;
-      padding: 0.8rem 1.5rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      z-index: 1000;
-      border-bottom: 1px solid #eee;
-    }
-
-    header#site-header nav {
-      display: flex;
-      gap: 1.5rem;
-      font-size: 1rem;
-      font-weight: 500;
-    }
-
-    header#site-header a {
-      color: #0366d6;
-      text-decoration: none;
-    }
-
-    header#site-header a:hover {
-      color: #d6336c;
-    }
-
-    /* 图片居中 */
-    .markdown-body img {
-      display: block;
-      margin: 0 auto;
-    }
-
-    aside#toc {
-      position: fixed;
-      top: 4rem;
-      left: 0;
-      width: 18rem;
-      height: calc(100vh - 4rem);
-      overflow-y: auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 1rem;
-      z-index: 999;
-    }
-
-    main#main {
-      margin-left: 19rem;
-      margin-top: 3rem;
-      flex: 1;
-      padding: 1.5rem;
-    }
-
-    aside#related {
-      width: 18rem;
-      margin-top: 4rem;
-      margin-left: 1rem;
-      padding: 1rem;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      height: fit-content;
-    }
-
-    .markdown-body {
-      max-width: 100%;
-      background:none;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
-
-    #toc ul, #archive-list ul {
-      list-style: none;
-      padding-left: 1rem;
-      margin: 0;
-    }
-
-    #toc li, #archive-list li {
-      margin: 0.15rem 0;
-      font-size: 0.9rem;
-      position: relative;
-      padding-left: 1rem;
-    }
-
-    #toc li::before, #archive-list li::before {
-      content: "▸";
-      position: absolute;
-      left: 0;
-      color: #bbb;
-      font-size: 0.8rem;
-    }
-
-    #toc a, #archive-list a {
-      color: #0366d6;
-      text-decoration: none;
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    #toc a.active {
-      font-weight: bold;
-      color: #d6336c;
-    }
-
-    /* 返回顶部按钮 */
-    
-    #top-btn {
-      position: fixed;
-      bottom: 240px;
-      right: 20px;
-      width: 60px;
-      padding: 8px 12px;
-      background: #0366d6;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      display: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      z-index: 1001;
-    }
-
-      @media (min-width: 769px) {
-      #toc-toggle {
-        display: none;  /* 在桌面端隐藏 */
-      }
-    }
-    
-    /* 移动端样式 */
     @media (max-width: 768px) {
-      header#site-header nav {
-        justify-content: space-evenly;
-        gap: 1rem;
-      }
-  
-      body {
-        flex-direction: column;
-        padding: 0;
-        margin: 0;
-      }
-      #toc-toggle {
-        position: fixed;
-        background: #0366d6;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 14px;
-        padding: 8px 12px;
-        cursor: pointer;
-        z-index: 1001;
-        display: block;
-        position: fixed;
-        left: 20px;
-        bottom: 240px;
-        width: 60px; /* 调整宽度，使其不遮挡内容 */
-      }
-      aside#toc {
-        display: none; /* 隐藏目录 */
-        width: 100%;
-        top: 0;
-        position: fixed;
-        z-index: 999;
-      }
-
-      main#main {
-        margin: 3.5rem 0.5rem 0.5rem 0.5rem;
-        order: 1;
-        padding: 0.5rem;
-        font-size: 0.94rem;
-      }
-
-      aside#related {
-        width: 100%;
-        margin: 0.5rem 0;
-        padding: 0.75rem;
-        order: 2;
-        border-radius: 0;
-        box-shadow: none;
-        font-size: 0.94rem;
-      }
-
-      /* 缩小 ul / li 缩进和字体 */
-      #toc ul, #archive-list ul {
-        padding-left: 0.5rem !important;
-        margin: 0;
-      }
-
-      #toc li, #archive-list li {
-        padding-left: 0.5rem !important;
-        font-size: 0.85rem !important;
-        margin: 0.1rem 0;
-      }
-
-      .archive-month {
-        padding-left: 0.5rem !important;
-        font-size: 0.9rem !important;
-        margin: 0.4rem 0 0.2rem;
-      }
-
-      .markdown-body {
-        font-size: 0.8rem;
-        line-height: 1.5;
-        padding: 0;
-      }
-
-      /* 控制目录按钮 */
-      #toc-toggle {
-        display: block;
-        cursor: pointer;
-        padding: 0.5rem;
-        background: #0366d6;
-        color: white;
-        border: none;
-        border-radius: 6px;
-      }
+      main { flex-direction: column; }
+      .sidebar-left, .sidebar-right { width: 100%; height: auto; display: none; border: none; background: #f8f8f8; position: absolute; z-index: 999; top: 3rem; left: 0; }
+      .sidebar-left.active { display: block; animation: fadein 0.3s; }
+      #toggle-toc { position: fixed; top: 50%; left: 0; transform: translateY(-50%); background: #007bff; color: #fff; padding: 0.5rem; border-radius: 0 5px 5px 0; z-index: 1001; cursor: pointer; }
     }
-
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
-  <header id="site-header">
-    <nav>
-      <a href="../index.html">🏠 主页</a>
-      <a href="../index.html">📚 博客</a>
-      <a href="../other.html">🧩 其他</a>
-      <a href="../about.html">ℹ️ 关于</a>
-    </nav>
-  </header>
 
-  <aside id="toc">
-    <h2>目录</h2>
-    <ul id="toc-list"></ul>
-  </aside>
+  <nav>
+    <a href="index.html">🏠<span>主页</span></a>
+    <a href="blog.html">📘<span>博客</span></a>
+    <a href="other.html">📚<span>其他</span></a>
+    <a href="about.html">👤<span>关于</span></a>
+  </nav>
 
-  <main id="main">
-    <article id="output" class="markdown-body"></article>
+  <div id="toggle-toc">📑</div>
+
+  <main>
+    <div class="sidebar-left" id="toc"></div>
+    <div class="content">
+      <article class="markdown-body" id="content">加载中...</article>
+      <div class="sidebar-right" id="archive">
+        <h3>归档</h3>
+        <ul>
+          <li>2025-07</li>
+          <li>2025-06</li>
+        </ul>
+      </div>
+    </div>
   </main>
 
-  <aside id="related">
-    <h2>归档</h2>
-    <div id="archive-list"></div>
-  </aside>
-  
-  <button id="toc-toggle">☰</button>
-  <button id="top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-katex/dist/markdown-it-katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-mermaid/dist/markdown-it-mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor/dist/markdown-it-anchor.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tocbot/dist/tocbot.min.js"></script>
 
   <script>
-    const params = new URLSearchParams(location.search);
-    const filename = decodeURIComponent(params.get("p") || "test.md");
+    const md = window.markdownit({ html: true, highlight: str => hljs.highlightAuto(str).value })
+      .use(window.markdownitKatex)
+      .use(window.markdownitMermaid)
+      .use(window.markdownitAnchor);
 
-    async function renderMarkdownFromFile(filePath) {
-      const res = await fetch(filePath);
-      if (!res.ok) {
-        document.getElementById("output").innerHTML = `<p style="color:red;">加载失败: ${filePath}</p>`;
-        return;
-      }
+    const file = new URLSearchParams(location.search).get('p') || 'readme.md';
 
-      const raw = await res.text();
-      const mermaidRegex = /```mermaid\n([\s\S]*?)```/g;
-      let mermaidBlocks = [];
-      let preprocessed = raw.replace(mermaidRegex, (_, code) => {
-        const id = `mermaid-${mermaidBlocks.length}`;
-        mermaidBlocks.push({ id, code });
-        return `<div class="mermaid" id="${id}">${code}</div>`;
-      });
-
-      const output = document.getElementById("output");
-      output.innerHTML = marked.parse(preprocessed);
-
-      const headers = output.querySelectorAll("h1, h2, h3");
-      buildTocTree(headers);
-      setupTocActive(headers);
-
-      for (let block of mermaidBlocks) {
-        try {
-          await mermaid.run({ nodes: [document.getElementById(block.id)] });
-        } catch (e) {
-          console.error("Mermaid render error:", e);
-        }
-      }
-
-      MathJax.typesetPromise();
-    }
-
-    function buildTocTree(headers) {
-      const container = document.getElementById("toc-list");
-      container.innerHTML = "";
-      let stack = [{ level: 0, ul: container }];
-
-      headers.forEach((header, i) => {
-        const level = parseInt(header.tagName[1]);
-        const id = `heading-${i}`;
-        header.id = id;
-
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}">${header.innerText}</a>`;
-
-        while (stack.length > 0 && stack[stack.length - 1].level >= level) {
-          stack.pop();
-        }
-
-        let parentUl = stack[stack.length - 1].ul;
-        let ul = document.createElement("ul");
-        li.appendChild(ul);
-        parentUl.appendChild(li);
-
-        stack.push({ level, ul });
-      });
-    }
-
-    function setupTocActive(headers) {
-      const tocLinks = Array.from(document.querySelectorAll("#toc a"));
-      const headerMap = tocLinks.map(link => {
-        const id = link.getAttribute("href").slice(1);
-        return [document.getElementById(id), link];
-      });
-
-      window.addEventListener("scroll", () => {
-        let current = null;
-        for (const [header, link] of headerMap) {
-          const top = header.getBoundingClientRect().top;
-          if (top < 100) current = link;
-        }
-
-        tocLinks.forEach(link => link.classList.remove("active"));
-        if (current) current.classList.add("active");
-      });
-    }
-
-    async function loadArchiveList() {
-      try {
-        const res = await fetch("../list.json");
-        const list = await res.json();
-        const groups = {};
-        list.forEach(([name, time]) => {
-          const month = time.slice(0, 7);
-          if (!groups[month]) groups[month] = [];
-          groups[month].push(name);
+    fetch('p/' + file)
+      .then(res => res.text())
+      .then(text => {
+        const html = md.render(text);
+        document.getElementById('content').innerHTML = html;
+        tocbot.init({
+          tocSelector: '#toc',
+          contentSelector: '#content',
+          headingSelector: 'h1, h2, h3',
+          collapseDepth: 6
         });
+      });
 
-        const container = document.getElementById("archive-list");
-        container.innerHTML = "";
-
-        Object.entries(groups).reverse().forEach(([month, files]) => {
-          const group = document.createElement("div");
-          group.className = "archive-group";
-
-          const monthDiv = document.createElement("div");
-          monthDiv.className = "archive-month";
-          monthDiv.textContent = `📁 ${month}`;
-
-          const ul = document.createElement("ul");
-          files.forEach(name => {
-            const li = document.createElement("li");
-            li.innerHTML = `<a href="index.html?p=${encodeURIComponent(name)}">${name}</a>`;
-            ul.appendChild(li);
-          });
-
-          monthDiv.addEventListener("click", () => {
-            ul.classList.toggle("collapsed");
-            monthDiv.classList.toggle("collapsed");
-          });
-
-          group.appendChild(monthDiv);
-          group.appendChild(ul);
-          container.appendChild(group);
-        });
-      } catch (err) {
-        document.getElementById("archive-list").innerHTML = `<p>归档加载失败</p>`;
-      }
-    }
-    // 获取返回顶部按钮
-    const topBtn = document.getElementById("top-btn");
-
-    // 监听滚动事件，根据滚动距离显示/隐藏按钮
-    window.onscroll = function() {
-      if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-        topBtn.style.display = "block"; // 显示按钮
-      } else {
-        topBtn.style.display = "none"; // 隐藏按钮
-      }
-    };
-    document.getElementById("toc-toggle").addEventListener("click", function() {
-      const toc = document.getElementById("toc");
-      toc.style.display = toc.style.display === "block" ? "none" : "block";
+    const tocBtn = document.getElementById('toggle-toc');
+    const tocPanel = document.getElementById('toc');
+    tocBtn.addEventListener('click', () => {
+      tocPanel.classList.toggle('active');
     });
 
-    window.addEventListener("click", function(event) {
-      const toc = document.getElementById("toc");
-      const tocToggle = document.getElementById("toc-toggle");
-      if (!toc.contains(event.target) && event.target !== tocToggle) {
-        toc.style.display = "none";
+    document.body.addEventListener('click', e => {
+      if (window.innerWidth <= 768) {
+        if (!tocPanel.contains(e.target) && !tocBtn.contains(e.target)) {
+          tocPanel.classList.remove('active');
+        }
       }
     });
-
-    renderMarkdownFromFile(filename);
-    loadArchiveList();
   </script>
 </body>
 </html>

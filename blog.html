@@ -5,38 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>博客文章</title>
 
-  <!-- GitHub Markdown 风格 -->
+  <!-- 样式库 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
-
-  <!-- KaTeX 数学公式 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it-texmath@0.11.6/css/texmath.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
   <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
-    nav { position: fixed; top: 0; left: 0; width: 100%; height: 3rem; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 1rem; z-index: 1000; }
+    html, body { margin: 0; padding: 0; font-family: sans-serif; overflow: hidden; }
+    nav { position: fixed; top: 0; left: 0; height: 3rem; width: 100%; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 1rem; z-index: 1000; }
     nav a { margin-right: 1.5rem; text-decoration: none; color: #000; display: flex; align-items: center; }
     nav span { margin-left: 0.3rem; }
 
     main { height: calc(100vh - 3rem); display: flex; overflow: hidden; }
 
-    #toc, #archive { width: 15rem; padding: 1rem; overflow-y: auto; box-sizing: border-box; background: #f9f9f9; border-right: 1px solid #eee; }
+    #toc, #archive { width: 15rem; padding: 1rem; overflow-y: auto; background: #f9f9f9; box-sizing: border-box; }
     #archive { border-left: 1px solid #eee; }
+    #toc { border-right: 1px solid #eee; }
 
     #content { flex: 1; padding: 2rem; overflow-y: auto; box-sizing: border-box; word-wrap: break-word; }
-
     .markdown-body { max-width: 100%; }
 
-    /* 中尺寸：隐藏右边栏，放到底部 */
+    /* 中屏响应：隐藏右栏并放到底部 */
     @media (max-width: 1024px) {
       main { flex-direction: column; }
-      #toc { width: 100%; order: 1; border-right: none; border-bottom: 1px solid #eee; }
-      #content { order: 2; }
-      #archive { width: 100%; order: 3; border-left: none; border-top: 1px solid #eee; }
+      #toc, #archive { width: 100%; }
+      #archive { border-left: none; border-top: 1px solid #eee; }
+      #toc { border-right: none; border-bottom: 1px solid #eee; }
     }
 
-    /* 小尺寸：目录默认隐藏，按钮控制显示 */
+    /* 小屏响应：左栏目录默认隐藏，显示按钮控制 */
     @media (max-width: 600px) {
       #toc { display: none; position: absolute; top: 3rem; left: 0; width: 100%; height: calc(100vh - 3rem); background: #fff; z-index: 999; }
       #show-toc-btn { display: block; position: fixed; top: 50%; left: 0.5rem; z-index: 1001; background: #007bff; color: white; padding: 0.4rem 0.6rem; border: none; border-radius: 0.3rem; }
@@ -46,7 +43,6 @@
   </style>
 </head>
 <body>
-
   <nav>
     <a href="index.html">🏠<span>主页</span></a>
     <a href="blog.html">📘<span>博客</span></a>
@@ -65,59 +61,63 @@
     </div>
   </main>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor@8.6.7/dist/markdownItAnchor.umd.min.js"></script>
+  <!-- 插件引入 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it-texmath@0.11.6/texmath.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tocbot@4.25.0/dist/tocbot.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
 
   <script>
-    const md = window.markdownit({
-      html: true,
-      linkify: true,
-      typographer: true,
-      highlight: str => hljs.highlightAuto(str).value
-    }).use(texmath.use(katex), { delimiters: 'dollars' })
-      .use(window.markdownItAnchor);
+    const mdFile = new URLSearchParams(location.search).get('p') || 'readme.md';
 
-    const file = new URLSearchParams(location.search).get('p') || 'readme.md';
-
-    fetch('p/' + file)
+    fetch('p/' + mdFile)
       .then(res => res.text())
       .then(text => {
-        const html = md.render(text);
+        // 渲染 markdown -> HTML
+        const html = marked.parse(text);
         document.getElementById('content').innerHTML = html;
 
-        // 初始化 TOC
-        tocbot.init({
-          tocSelector: '#toc',
-          contentSelector: '#content',
-          headingSelector: 'h1, h2, h3',
-          collapseDepth: 6
+        // 渲染代码高亮
+        document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+
+        // 渲染数学公式
+        renderMathInElement(document.getElementById('content'), {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ]
         });
 
-        // 初始化 Mermaid
+        // 渲染 Mermaid 图表
         mermaid.initialize({ startOnLoad: false });
         mermaid.run();
 
-        // 构建归档（模拟）
-        const archive = document.getElementById('archive-list');
-        archive.innerHTML = `<li><a href="?p=${file}">${file}</a></li>`;
+        // 自动构建 TOC（简单实现：提取 h1~h3）
+        const toc = document.getElementById('toc');
+        const headers = document.querySelectorAll('#content h1, h2, h3');
+        toc.innerHTML = '<h3>目录</h3><ul>' +
+          Array.from(headers).map(h => {
+            const id = h.innerText.replace(/\s+/g, '-');
+            h.id = id;
+            return `<li style="margin-left:${(parseInt(h.tagName[1])-1)*1.2}rem"><a href="#${id}">${h.innerText}</a></li>`;
+          }).join('') + '</ul>';
+
+        // 简易归档（可换成读取 list.json）
+        document.getElementById('archive-list').innerHTML =
+          `<li><a href="?p=${mdFile}">${mdFile}</a></li>`;
       })
       .catch(err => {
         document.getElementById('content').innerText = '加载失败：' + err;
       });
 
-    // 移动端显示/隐藏目录
+    // 移动端：显示目录按钮 + 点击空白关闭
     const btn = document.getElementById('show-toc-btn');
-    const toc = document.getElementById('toc');
-    btn.onclick = () => { toc.style.display = 'block'; };
+    const tocBox = document.getElementById('toc');
+    btn.onclick = () => tocBox.style.display = 'block';
     document.addEventListener('click', e => {
-      if (window.innerWidth <= 600 && toc.style.display === 'block' && !toc.contains(e.target) && e.target !== btn) {
-        toc.style.display = 'none';
+      if (window.innerWidth <= 600 && tocBox.style.display === 'block' && !tocBox.contains(e.target) && e.target !== btn) {
+        tocBox.style.display = 'none';
       }
     });
   </script>

@@ -9,10 +9,11 @@
     nav { position: fixed; top: 0; left: 0; width: 100%; height: 3rem; background-color: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 1rem; z-index: 1000; }
     nav a { margin-right: 1.5rem; text-decoration: none; color: #000; display: flex; align-items: center; }
     nav span { margin-left: 0.3rem; }
-    main { margin-top: 3rem; height: calc(100vh - 3rem); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem; word-break: break-word; }
-    .welcome { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; }
-    .subtext { color: #555; margin-bottom: 2rem; }
-    .latest { background: #fafafa; padding: 1rem; border: 1px solid #eee; border-radius: 0.5rem; width: 100%; max-width: 600px; }
+    main { height: 100vh; padding-top: 3rem; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; }
+    .center-box { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .welcome { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; text-align: center; }
+    .subtext { color: #555; margin-bottom: 2rem; text-align: center; }
+    .latest { background: #fafafa; padding: 1rem; border: 1px solid #eee; border-radius: 0.5rem; text-align: left; width: 100%; max-width: 600px; margin-bottom: 2rem; }
     .latest h2 { margin: 0 0 1rem 0; }
     .article { margin-bottom: 0.8rem; display: flex; justify-content: flex-start; align-items: baseline; gap: 1rem; }
     .article-title { font-size: 1.1rem; font-weight: bold; white-space: nowrap; }
@@ -29,8 +30,10 @@
   </nav>
 
   <main>
-    <div class="welcome">欢迎来到我的博客</div>
-    <div class="subtext">这里记录了我思考与探索的点滴。</div>
+    <div class="center-box">
+      <div class="welcome">欢迎来到我的博客</div>
+      <div class="subtext">这里记录了我思考与探索的点滴。</div>
+    </div>
     <div class="latest">
       <h2>最新文章</h2>
       <div id="article-list">加载中...</div>

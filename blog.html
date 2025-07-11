@@ -283,7 +283,7 @@
   <script>
     const params = new URLSearchParams(location.search);
     const filename = decodeURIComponent(params.get("p") || "readme.md");
-    const filePath="p/"+filename
+    const filePath="./p/${filename}"
     async function renderMarkdownFromFile(filePath) {
       const res = await fetch(filePath);
       if (!res.ok) {
